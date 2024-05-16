@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block body %}
+    <div class="container h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-9 col-lg-7 col-xl-7">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <form method="post">
+                            {% if error %}
+                                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                            {% endif %}
+
+                            {% if app.user %}
+                                <div class="mb-3">
+                                    You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+                                </div>
+                            {% endif %}
+
+                            <h2 class="text-center text-uppercase mb-5">Please sign in</h2>
+                            <input type="email" value="{{ last_username }}" name="email" class="form-control bg-transparent block mb-3 mx-auto border-b-2 w-1/5 h-20 text-2xl outline-none" autocomplete="email" placeholder="Email" required autofocus>
+                            <input type="password" name="password" class="form-control bg-transparent block mb-3 mx-auto border-b-2 w-1/5 h-20 text-2xl outline-none" placeholder="Password" autocomplete="current-password" required>
+
+                            <input type="hidden" name="_csrf_token"
+                                value="{{ csrf_token('authenticate') }}"
+                            >
+                            <div class="mt-10">
+                                <button class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100" type="submit">
+                                    Sign in
+                                </button>
+                            </div>
+                        </form>
+                        <div class="d-flex justify-content-center aling-items-center mt-3">
+                            <span class="me-1">Don't have an account?</span> <a class="fw-bold text-body" href="{{ path('app_register') }}"> Sign up here</a>
+                        </div>      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

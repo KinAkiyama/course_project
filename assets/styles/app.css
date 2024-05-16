@@ -1,3 +1,40 @@
 body {
-    background-color: skyblue;
+    margin: 0;
+    height: 100vh;
+
+    text-decoration: none;
+}
+
+section {
+    display: block;
+    height: 80%;
+
+    background: rgb(255,255,255);
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(209,209,209,1) 100%);
+}
+
+header {
+    background-color: lightgray;
+}
+
+footer {
+    background-color: black;
+}
+
+/*Auth Card*/
+
+.card {
+    border-radius: 15px;
+
+    border: none;
+    box-shadow: 0px 10px 50px gray;
+}
+
+.gradient-custom-1 {
+    background: rgb(131,58,180);
+    background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,126,29,1) 50%, rgba(252,176,69,1) 100%); 
+}
+
+.custom-color-1 {
+    background-color: #fd7e1d;
 }
