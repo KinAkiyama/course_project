@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM webdevops/php-nginx:8.2-alpine
 
 RUN apt-get update && apt-get install -y \
 nginx \
