@@ -23,6 +23,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 RUN composer require symfony/maker-bundle
 
+ENV WEB_DOCUMENT_ROOT=/app/public
+ENV WEB_DOCUMENT_INDEX=index.php
+
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf /etc/nginx/conf.d/
 
