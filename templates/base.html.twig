@@ -12,6 +12,12 @@
         {% endblock %}
     </head>
     <body>
+        <div class="flash-messages">
+            {% for message in app.flashes('success') %}
+                <div class="alert-success">{{ message }}</div>
+            {% endfor %}
+        </div>
+
         <header class="p-3">
             {% block header %}
                 <div class="container">
@@ -51,8 +57,12 @@
                             <form class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                                 <input type="search" class="form-control form-control-dark" placeholder="Search" aria-label="Search">
                             </form>
-                            <button type="button" class="btn btn-outline-light mx-2">Login</button>
-                            <button type="button" class="btn custom-color-1 text-bg-white">Sign-up</button>
+                            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                                <button type="button" class="btn btn-outline-light mx-2"><a class="text-decoration-none text-dark" href="{{ path ('app_logout')}}">Logout</a></button>
+                            {% else %}
+                                <button type="button" class="btn btn-outline-light mx-2"><a class="text-decoration-none text-dark" href="{{ path ('app_login')}}">Login</a></button>
+                                <button type="button" class="btn custom-color-1 text-bg-white"><a class="text-decoration-none text-dark" href="{{ path ('app_register')}}">Sign-in</a></button>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

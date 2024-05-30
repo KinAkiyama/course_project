@@ -5,9 +5,7 @@
 {% block body %}
     <div class="container">
         <div class="text-center">
-            {% for user in users %}
-                <h3>{{ users|length }}</h3>
-            {% endfor %} 
+            <button type="button" class="btn btn-outline-light mx-2"><a class="text-decoration-none text-dark" href="{{ path ('app_collection')}}">Create new Collection!</a></button>
         </div>
     </div>
 {% endblock %}
