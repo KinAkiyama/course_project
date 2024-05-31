@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Item creation page{% endblock %}
+
+{% block body %}
+    <div class="container py-3 h-100">
+        <div class="back_btn">
+            <button type="button" class="btn btn-outline-light mx"><a class="text-decoration-none text-dark" href="{{ path ('app_user')}}">← Back</a></button>
+        </div>
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            {{ form_errors(ItemForm) }}
+            
+            {{ form_start(ItemForm) }}
+                <div class="bg-white rounded">
+                    {{ form_row(ItemForm.name) }}
+                </div>
+
+                {# <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Create Item</button> #}
+            {{ form_end(ItemForm) }}     
+        </div>  
+    </div>
+{% endblock %}

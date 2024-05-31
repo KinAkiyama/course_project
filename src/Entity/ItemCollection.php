@@ -43,9 +43,16 @@ class ItemCollection
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
+    /**
+     * @var Collection<int, CollectionItem>
+     */
+    #[ORM\OneToMany(targetEntity: CollectionItem::class, mappedBy: 'itemCollection', orphanRemoval: true)]
+    private Collection $collectionItems;
+
     public function __construct()
     {
         $this->customItemAttribute = new ArrayCollection();
+        $this->collectionItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -127,6 +134,36 @@ class ItemCollection
     public function setAuthor(?User $author): static
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CollectionItem>
+     */
+    public function getCollectionItems(): Collection
+    {
+        return $this->collectionItems;
+    }
+
+    public function addCollectionItem(CollectionItem $collectionItem): static
+    {
+        if (!$this->collectionItems->contains($collectionItem)) {
+            $this->collectionItems->add($collectionItem);
+            $collectionItem->setItemCollection($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollectionItem(CollectionItem $collectionItem): static
+    {
+        if ($this->collectionItems->removeElement($collectionItem)) {
+            // set the owning side to null (unless already changed)
+            if ($collectionItem->getItemCollection() === $this) {
+                $collectionItem->setItemCollection(null);
+            }
+        }
 
         return $this;
     }
