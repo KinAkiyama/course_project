@@ -20,7 +20,7 @@ class CollectionCreateType extends AbstractType
             ->add('name', TextType::class, [
                 'label' => false,
                 'attr' => [
-                    'placeholder' => 'Name of Collection',
+                    'placeholder' => 'Collection name',
                     'class' => 'bg-transparent block mt-10 mx-auto border-b-2 w-1/5 h-20 text-2xl outline-none',
                 ],
             ])
@@ -28,7 +28,7 @@ class CollectionCreateType extends AbstractType
             ->add('description', TextareaType::class, [
                 'label' => false,
                 'attr' => [
-                    'placeholder' => 'Name of Collection',
+                    'placeholder' => 'Description',
                     'class' => 'bg-transparent block mt-10 mx-auto border-b-2 w-1/5 h-20 text-2xl outline-none',
                 ],
             ])

@@ -4,15 +4,17 @@ namespace App\Controller;
 
 use App\Entity\ItemCollection;
 use App\Form\CollectionCreateType;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class CollectionController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager, private Security $security)
     {
 
     }
@@ -31,6 +33,9 @@ class CollectionController extends AbstractController
         $collection = new ItemCollection();
         $form = $this->createForm(CollectionCreateType::class, $collection);
         $form->handleRequest($request);
+        $user = $this->security->getUser(); 
+
+        $collection -> setAuthor($user);
 
         if ($form->isSubmitted() && $form->isValid())
         {

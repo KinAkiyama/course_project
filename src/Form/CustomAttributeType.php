@@ -20,7 +20,7 @@ class CustomAttributeType extends AbstractType
             ->add('name', TextType::class, [
                 'label' => false,
                 'attr' => [
-                    'placeholder' => 'Name of Collection',
+                    'placeholder' => 'Attribute name',
                     'class' => 'bg-transparent block mt-10 mx-auto border-b-2 w-1/5 h-20 text-2xl outline-none',
                 ],
             ])

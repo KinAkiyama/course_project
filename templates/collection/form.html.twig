@@ -2,33 +2,39 @@
 
 {% block title %}Collection creation page{% endblock %}
 
-{# {% block javascripts %}
-    <script type="application/javascript" src="{{ asset ('js/collectionFormHelper.js')}}"></script>
-{% endblock %} #}
-
 {% block body %}
-    <div class="container h-100">
-        {{ form_errors(collectionForm) }}
+    <div class="container py-3 h-100">
+        <div class="back_btn">
+            <button type="button" class="btn btn-outline-light mx"><a class="text-decoration-none text-dark" href="{{ path ('app_user')}}">← Back</a></button>
+        </div>
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            {# <h2 class="text-center text-uppercase mb-5">Create Collection</h2> #}
+            {{ form_errors(collectionForm) }}
+            
+            {{ form_start(collectionForm) }}
+                <div class="bg-white rounded">
+                    {{ form_row(collectionForm.name) }}
+                </div>
+                <div class="bg-white rounded">
+                    {{ form_row(collectionForm.description) }}
+                </div>
+                {{ form_row(collectionForm.category) }}
 
-        {{ form_start(collectionForm) }}
-            {{ form_row(collectionForm.name) }}
-            {{ form_row(collectionForm.description) }}
-            {{ form_row(collectionForm.category) }}
+                <div data-index="{{ collectionForm.customItemAttribute|length > 0 ? collectionForm.customItemAttribute|last.vars.name + 1 : 0 }}" 
+                                    data-prototype="{{ form_widget(collectionForm.customItemAttribute.vars.prototype)|e('html_attr') }}" 
+                                    id="custom-attribute-wrapper">
+                    {% for customItemAttribute in collectionForm.customItemAttribute%}
+                        <div class="item text-prime">
+                            {{ form_row(customItemAttribute)}}
+                        <div>
+                    {% endfor %}
+                </div>
 
-            <div data-index="{{ collectionForm.customItemAttribute|length > 0 ? collectionForm.customItemAttribute|last.vars.name + 1 : 0 }}" 
-                                data-prototype="{{ form_widget(collectionForm.customItemAttribute.vars.prototype)|e('html_attr') }}" 
-                                id="custom-attribute-wrapper">
-                {% for customItemAttribute in collectionForm.customItemAttribute%}
-                    <div class="item text-prime">
-                        {{ form_row(customItemAttribute)}}
-                    <div>
-                {% endfor %}
-            </div>
+                <button type="button" class="btn btn-outline-light mb-3"><a class="text-decoration-none text-dark" id="add-custom-attribute" href="#">Abb custom attribute</a></button>
 
-            <a id="add-custom-attribute" href="#">Abb custom attribute</a>
-
-            <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Create Collection</button>
-        {{ form_end(collectionForm) }}       
+                <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Create Collection</button>
+            {{ form_end(collectionForm) }}     
+        </div>  
     </div>
 
     <script>
@@ -54,6 +60,7 @@
 
         function addRemoveCollectionAttributeButton(item) {
             const removeFormButton = document.createElement('button');
+            removeFormButton.className = "btn btn-danger mb-3 text-dark";
             removeFormButton.innerText = 'Delete';
 
             item.append(removeFormButton);

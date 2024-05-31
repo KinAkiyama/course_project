@@ -39,6 +39,10 @@ class ItemCollection
     #[CollectionCustomAttribute()]
     private Collection $customItemAttribute;
 
+    #[ORM\ManyToOne(inversedBy: 'userCollections')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $author = null;
+
     public function __construct()
     {
         $this->customItemAttribute = new ArrayCollection();
@@ -114,4 +118,17 @@ class ItemCollection
 
         return $this;
     }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
 }
