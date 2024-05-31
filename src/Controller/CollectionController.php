@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\ItemCollection;
 use App\Form\CollectionCreateType;
-use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -33,6 +32,7 @@ class CollectionController extends AbstractController
         $collection = new ItemCollection();
         $form = $this->createForm(CollectionCreateType::class, $collection);
         $form->handleRequest($request);
+
         $user = $this->security->getUser(); 
 
         $collection -> setAuthor($user);
@@ -67,6 +67,26 @@ class CollectionController extends AbstractController
             'action' => 'Update',
             'collectionForm' => $form,
             'collection' => $collection,
+        ]);
+    }
+
+    #[Route('/delete/{id}', name: 'app_collection_delete', methods: [Request::METHOD_GET])]
+    public function delete(int $id): Response
+    {
+        $collection = $this -> entityManager -> getRepository(ItemCollection::class) -> find($id);
+        $this -> entityManager -> remove($collection);
+        $this -> entityManager -> flush();
+
+        return $this -> redirectToRoute('app_user');
+    }
+
+    #[Route('/collection/{id}', name: 'app_collection_show')]
+    public function show(int $id): Response
+    {
+        $collection = $this -> entityManager -> getRepository(ItemCollection::class) -> find($id);
+
+        return $this -> render('collection/collectionPage.html.twig', [
+            'collection' => $collection
         ]);
     }
 }

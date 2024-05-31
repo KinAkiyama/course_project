@@ -1,13 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello UserController!{% endblock %}
+{% block title %}Main Page{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <div class="text-center">
-            <button type="button" class="btn gradient-custom-1 text-bg-white w-100 my-3 border-rounded"><a class="text-decoration-none text-dark" href="{{ path ('app_collection_create')}}">Create new Collection!</a></button>
+    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+        <div class="container">
+            <div class="text-center">
+                <button type="button" class="btn gradient-custom-1 text-bg-white w-100 my-3 border-rounded"><a class="text-decoration-none text-dark" href="{{ path ('app_collection_create')}}">Create new Collection!</a></button>
+            </div>
         </div>
-    </div>
+    {% endif %}
     <div class="container">
         {% if collections %}
             <div class="row my-5 pb-5">
@@ -15,8 +17,15 @@
                     <div class="col-sm-4 mb-3">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">{{ collection.name }}</h5>
+                                <h5 class="card-title"><a class="text-decoration-none text-dark" href="{{ path ('app_collection_show', {id:collection.id}) }}">{{ collection.name }}</a></h5>
                                 <p class="card-text">{{ collection.description }}</p>
+
+                                {% if app.user and app.user.email == collection.author.email %}                                    
+                                    <div class="d-flex justify-content-between">
+                                        <button class="btn btn-outline-warning me-2 w-100 "><a class="text-decoration-none text-dark" href="{{ path ('app_collection_update', {id:collection.id} )}}">Update</a></button>
+                                        <button class="btn btn-outline-danger me-2 w-100 "><a class="text-decoration-none text-dark" href="{{ path ('app_collection_delete', {id:collection.id} )}}">Delete</a></button>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
