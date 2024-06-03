@@ -1,18 +1,17 @@
 html {
-    max-height: 3000px;
+    height: auto;
 }
 
 body {
     margin: 0;
     height: 100vh;
-    max-height: 3000px;
 
     text-decoration: none;
 }
 
 section {
-    display: block;
-    height: 100%;
+    height: auto;
+    min-height: 100%;
 
     z-index: 0;
 
@@ -35,7 +34,10 @@ footer {
     bottom: 0;
 }
 
-/*Auth Card*/
+.auth-container {
+    height: 100vh;
+    width: 100%;
+}
 
 .card {
     border-radius: 15px;
@@ -58,4 +60,8 @@ footer {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+}
+
+.item-button {
+    width: 200px;
 }
