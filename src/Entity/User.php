@@ -23,11 +23,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank('Please enter your email')]
+    #[Assert\NotBlank]
     private ?string $email = null;
     
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank('Please enter your username')]
+    #[Assert\NotBlank]
     private ?string $username = null;
 
     #[ORM\Column(length: 255)]
@@ -43,7 +43,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Assert\NotBlank('Please enter the password')]
     private ?string $password = null;
 
     /**

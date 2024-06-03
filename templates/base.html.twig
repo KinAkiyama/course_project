@@ -58,10 +58,10 @@
                                 <input type="search" class="form-control form-control-dark" placeholder="Search" aria-label="Search">
                             </form>
                             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                                <button type="button" class="btn btn-outline-light mx-2"><a class="text-decoration-none text-dark" href="{{ path ('app_logout')}}">Logout</a></button>
+                                <a class="text-decoration-none text-dark" href="{{ path ('app_logout')}}"><button type="button" class="btn btn-outline-light mx-2">Logout</button></a>
                             {% else %}
-                                <button type="button" class="btn btn-outline-light mx-2"><a class="text-decoration-none text-dark" href="{{ path ('app_login')}}">Login</a></button>
-                                <button type="button" class="btn custom-color-1 text-bg-white"><a class="text-decoration-none text-dark" href="{{ path ('app_register')}}">Sign-up</a></button>
+                                <a class="text-decoration-none text-dark" href="{{ path ('app_login')}}"><button type="button" class="btn btn-outline-light mx-2">Login</button></a>
+                                <a class="text-decoration-none text-dark" href="{{ path ('app_register')}}"><button type="button" class="btn custom-color-1 text-bg-white">Sign-up</button></a>
                             {% endif %}
                         </div>
                     </div>

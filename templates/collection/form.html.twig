@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="container py-3 h-100">
-        <div class="back_btn">
-            <button type="button" class="btn btn-outline-light mx"><a class="text-decoration-none text-dark" href="{{ path ('app_user')}}">← Back</a></button>
+        <div class="back_btn mb-3">
+            <a class="text-decoration-none text-dark" href="{{ path ('app_user')}}"><button type="button" class="btn btn-outline-light mx">← Back</button></a>
         </div>
         <div class="row d-flex justify-content-center align-items-center h-100">
             {# <h2 class="text-center text-uppercase mb-5">Create Collection</h2> #}
@@ -30,7 +30,7 @@
                     {% endfor %}
                 </div>
 
-                <button type="button" onClick="window.location.reload();" class="btn btn-outline-light mb-3"><a class="text-decoration-none text-dark" id="add-custom-attribute" href="#">Abb custom attribute</a></button>
+               <a class="text-decoration-none text-dark" id="add-custom-attribute" href="#"><button type="button" class="btn btn-outline-light text-dark mb-3">Abb custom attribute</button></a>
 
                 <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Create Collection</button>
             {{ form_end(collectionForm) }}     

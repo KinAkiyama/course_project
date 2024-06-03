@@ -3,9 +3,9 @@
 {% block title %}Item creation page{% endblock %}
 
 {% block body %}
-    <div class="container py-3 h-100">
+    <div class="container py-3">
         <div class="back_btn">
-            <button type="button" class="btn btn-outline-light mx"><a class="text-decoration-none text-dark" href="{{ path ('app_user')}}">← Back</a></button>
+           <a class="text-decoration-none text-dark" href="{{ path ('app_user')}}"><button type="button" class="btn btn-outline-light mx">← Back</button></a>
         </div>
         <div class="row d-flex justify-content-center align-items-center h-100">
             {{ form_errors(ItemForm) }}

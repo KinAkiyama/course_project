@@ -30,6 +30,7 @@ class CollectionCreateType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Description',
                     'class' => 'bg-transparent block mt-10 mx-auto border-b-2 w-1/5 h-20 text-2xl outline-none',
+                    'style' => 'overflow: auto; resize: none;',
                 ],
             ])
 
