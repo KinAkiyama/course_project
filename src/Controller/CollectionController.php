@@ -63,7 +63,7 @@ class CollectionController extends AbstractController
             $this -> addFlash('success', 'Collection updated!');
         }
 
-        return $this->render('collection/form.html.twig', [
+        return $this->render('collection/updateCollectionPage.html.twig', [
             'action' => 'Update',
             'collectionForm' => $form,
             'collection' => $collection,

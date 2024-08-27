@@ -24,10 +24,10 @@
                 <div data-index="{{ collectionForm.customItemAttribute|length > 0 ? collectionForm.customItemAttribute|last.vars.name + 1 : 0 }}" 
                                     data-prototype="{{ form_widget(collectionForm.customItemAttribute.vars.prototype)|e('html_attr') }}"
                                     id="custom-attribute-wrapper">
-                    {% for customItemAttribute in collectionForm.customItemAttribute|slice(collectionForm.customItemAttribute|length) %}
+                    {% for customItemAttribute in collectionForm.customItemAttribute %}
                         <div class="item text-prime">
                             {{ form_row(customItemAttribute)}}
-                        <div>
+                        </div>
                     {% endfor %}
                 </div>
 
@@ -38,7 +38,7 @@
         </div>  
     </div>
 
-    <script>
+    <script defer>
         function addCustomCollectionAtribute(e) {
             const collectionHolder = document.querySelector('#custom-attribute-wrapper');
             const item = document.createElement('div');
@@ -87,5 +87,6 @@
                     addRemoveCollectionAttributeButton(row);
                 })
         })
+        
     </script>
 {% endblock %}
