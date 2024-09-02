@@ -8,15 +8,41 @@
            <a class="text-decoration-none text-dark" href="{{ path ('app_user')}}"><button type="button" class="btn btn-outline-light mx">← Back</button></a>
         </div>
         <div class="row d-flex justify-content-center align-items-center h-100">
-            {{ form_errors(ItemForm) }}
+            {{ form_errors(form) }}
             
-            {{ form_start(ItemForm) }}
-                <div class="bg-white rounded">
-                    {{ form_row(ItemForm.name) }}
+            {{ form_start(form) }}
+                <div class="bg-white rounded mt-3">
+                    {{ form_row(form.name) }}
                 </div>
 
                 {# <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Create Item</button> #}
-            {{ form_end(ItemForm) }}     
-        </div>  
+            {{ form_end(form) }}     
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <div>
+                {% for row in attributes %}
+                    {% for attributes in row %}
+                        <div class='mb-4'>
+                            <h4>{{ attributes|capitalize }}</h4>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+            {# {{testitem}} #}
+            <div class="row d-flex justify-content-center align-items-center h-100 w-75">
+                {{ form_errors(testform) }}
+                
+                {{ form_start(testform) }}
+                    <div class="bg-white rounded">
+                        {{ form_row(testform.value) }}
+                    </div>
+
+                    {# <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Create Item</button> #}
+                {{ form_end(testform) }}     
+            </div>
+        </div>
+
     </div>
 {% endblock %}
