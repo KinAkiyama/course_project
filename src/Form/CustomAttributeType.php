@@ -21,7 +21,7 @@ class CustomAttributeType extends AbstractType
                 'label' => false,
                 'attr' => [
                     'placeholder' => 'Attribute name',
-                    'class' => 'bg-transparent block mt-10 mx-auto border-b-2 w-1/5 h-20 text-2xl outline-none',
+                    'class' => 'bg-transparent block mt-10 mx-auto border-b-2 border-white w-1/5 h-20 text-2xl outline-none',
                 ],
             ])
             ->add('type', EnumType::class, [

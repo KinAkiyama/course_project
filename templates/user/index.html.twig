@@ -24,8 +24,10 @@
                             <div class="d-flex justify-content-between">
                                 <h5 class="card-title"><a class="text-decoration-none text-dark" href="{{ path ('app_collection_show', {id:collection.id}) }}">
                                 {{ collection.name }}</a></h5>
-                                <a class="d-flex justify-content-center align-items-center fs-3 fw-bold text-decoration-none rounded-circle text-white bg-primary pb-1" 
-                                style="width: 32px; height: 32px" role="button" href="{{ path ('app_item_create', {id:collection.id})}}">+</a>
+                                <div class="d-flex justify-content-center align-items-center fs-3 fw-bold rounded-circle bg-primary" 
+                                style="width: 32px; height: 32px" role="button">
+                                    <a class="text-decoration-none  text-white pb-1" href="{{ path ('app_item_create', {id:collection.id})}}">+</a>
+                                </div>
                             </div>
                                 <p class="card-text" >{{ collection.description }}</p>
 

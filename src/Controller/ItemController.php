@@ -5,14 +5,20 @@ namespace App\Controller;
 use App\Entity\CollectionItem;
 use App\Entity\ItemCollection;
 use App\Entity\ItemIntegerTypeAttribute;
+use App\Entity\ItemStringTypeAttribute;
+use App\Entity\CustomItemAttribute;
+use App\Entity\ItemBooleanTypeAttribute;
+use App\Entity\ItemDateTypeAttribute;
+use App\Entity\ItemTextTypeAttribute;
 use App\Form\ItemCreateType;
 use App\Form\TestType;
-use App\Form\ItemCustomAttributeType;
+use App\Enum\CustomAttributeType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints\Length;
 
 class ItemController extends AbstractController
 {
@@ -29,15 +35,22 @@ class ItemController extends AbstractController
         ]);
     }
 
-
     #[Route('/collection/{id}/item/create', name: 'app_item_create', methods: [Request::METHOD_GET, Request::METHOD_POST])]
     public function create(Request $request, string $id, EntityManagerInterface $entityManager): Response
     {
         $collection = $entityManager->getRepository(ItemCollection::class)->findOneBy(['id' => $id]);
-        $idCollection = $collection->getId();
+        $arrOfAttr = $entityManager->getRepository(CustomItemAttribute::class)->findBy(['itemCollection' => $id]);
+        $attrTypesArray = [];
+        $arrOfTypes = [];
+
+        foreach ($arrOfAttr as $attribute) {
+            $typeEnum = $attribute->getType();
+            $typeName = CustomAttributeType::name($typeEnum); 
+            $attrTypesArray[] = $typeName; 
+        }
+
         $attributes = $collection->getCustomItemAttribute()->getValues();
-        $attributesName = [];
-        
+            
         foreach ($attributes as $attribute) {
             $attributesName[] = [
                 $attribute -> getName(),
@@ -45,15 +58,37 @@ class ItemController extends AbstractController
         }
 
         $item = new CollectionItem();
-        $testitem = new ItemIntegerTypeAttribute();
+        $types = [
+            'Integer' => new ItemIntegerTypeAttribute(),
+            'String' => new ItemStringTypeAttribute(),
+            'Boolean' => new ItemBooleanTypeAttribute(),
+            'Date' => new ItemDateTypeAttribute(),
+            'Text' => new ItemTextTypeAttribute(),
+        ];
+
+        foreach ($attrTypesArray as $key) {
+            if (array_key_exists($key, $types)) {
+                $arrOfTypes[] = $types[$key];
+            }
+        }
 
         $form = $this->createForm(ItemCreateType::class, $item);
         $form->handleRequest($request);
 
-        $testform = $this->createForm(TestType::class, null, [
-            'data' => $testitem,
-        ]);
-        $testform->handleRequest($request);
+        $forms = [];
+
+        foreach ($arrOfTypes as $type => $attribute) {
+            $testform = $this->createForm(TestType::class, $attribute, [
+                'attribute_type' => $type,
+            ]);
+            $testform->handleRequest($request);
+            
+            if ($testform->isSubmitted() && $testform->isValid()) {
+                $this->entityManager->flush();
+            }
+        
+            $forms[] = $testform->createView();
+        }
 
         if ($form->isSubmitted() && $form->isValid())
         {
@@ -65,9 +100,9 @@ class ItemController extends AbstractController
 
         return $this->render('item/form.html.twig', [
             'form' => $form,
-            'testform' => $testform,
-            'testitem' => $testitem,
+            'forms' => $forms,
             'item' => $item,
+            'atr' => $arrOfTypes,
             'attributes' => $attributesName,
         ]);
     }
