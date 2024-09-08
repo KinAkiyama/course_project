@@ -40,23 +40,23 @@ class ItemController extends AbstractController
     {
         $collection = $entityManager->getRepository(ItemCollection::class)->findOneBy(['id' => $id]);
         $arrOfAttr = $entityManager->getRepository(CustomItemAttribute::class)->findBy(['itemCollection' => $id]);
+    
         $attrTypesArray = [];
         $arrOfTypes = [];
-
+        $attributesName = [];
+    
         foreach ($arrOfAttr as $attribute) {
             $typeEnum = $attribute->getType();
-            $typeName = CustomAttributeType::name($typeEnum); 
-            $attrTypesArray[] = $typeName; 
+            $typeName = CustomAttributeType::name($typeEnum);
+            $attrTypesArray[] = $typeName;
         }
-
+    
         $attributes = $collection->getCustomItemAttribute()->getValues();
-            
+    
         foreach ($attributes as $attribute) {
-            $attributesName[] = [
-                $attribute -> getName(),
-            ];
+            $attributesName[] = $attribute->getName();
         }
-
+    
         $item = new CollectionItem();
         $types = [
             'Integer' => new ItemIntegerTypeAttribute(),
@@ -65,45 +65,44 @@ class ItemController extends AbstractController
             'Date' => new ItemDateTypeAttribute(),
             'Text' => new ItemTextTypeAttribute(),
         ];
-
+    
         foreach ($attrTypesArray as $key) {
             if (array_key_exists($key, $types)) {
-                $arrOfTypes[] = $types[$key];
+                $arrOfTypes[$key] = $types[$key];
             }
         }
-
+    
         $form = $this->createForm(ItemCreateType::class, $item);
         $form->handleRequest($request);
-
+    
         $forms = [];
-
+    
         foreach ($arrOfTypes as $type => $attribute) {
-            $testform = $this->createForm(TestType::class, $attribute, [
+            $testForm = $this->createForm(TestType::class, $attribute, [
                 'attribute_type' => $type,
             ]);
-            $testform->handleRequest($request);
+            $testForm->handleRequest($request);
             
-            if ($testform->isSubmitted() && $testform->isValid()) {
-                $this->entityManager->flush();
+            if ($testForm->isSubmitted() && $testForm->isValid()) {
+                $entityManager->flush();
             }
         
-            $forms[] = $testform->createView();
+            $forms[$type] = $testForm->createView();
         }
-
-        if ($form->isSubmitted() && $form->isValid())
-        {
-            $this -> entityManager -> persist($item);
-            $this -> entityManager -> flush();
-
-            $this -> addFlash('success', 'Item created!');
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($item);
+            $entityManager->flush();
+            $this->addFlash('success', 'Item created!');
         }
-
+    
         return $this->render('item/form.html.twig', [
-            'form' => $form,
+            'form' => $form->createView(),
             'forms' => $forms,
             'item' => $item,
             'atr' => $arrOfTypes,
             'attributes' => $attributesName,
         ]);
     }
+    
 }

@@ -59,11 +59,12 @@ class TestType extends AbstractType
                 ]);
                 break;
             
-            case 'Bool':
+            case 'Boolean':
                 $builder->add('value', CheckboxType::class, [
-                    'label' => false,
+                    'label' => 'Select Option',
+                    'required' => false,
                     'attr' => [
-                        'class' => 'bg-transparent block mt-10 mx-auto border-b-2 w-1/5 h-20 text-2xl outline-none',
+                        'class' => 'form-check-input',
                     ],
                     'constraints' => [
                         new NotBlank(['message' => 'Please select an option']),

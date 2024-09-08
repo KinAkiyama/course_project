@@ -3,48 +3,46 @@
 {% block title %}Item creation page{% endblock %}
 
 {% block body %}
-    <div class="container py-3">
-        <div class="back_btn">
-           <a class="text-decoration-none text-dark" href="{{ path ('app_user')}}"><button type="button" class="btn btn-outline-light mx">← Back</button></a>
-        </div>
-        <div class="row d-flex justify-content-center align-items-center h-100">
+    <div>
+        <!-- Основная форма для CollectionItem -->
+        {{ form_start(form) }}
             {{ form_errors(form) }}
             
-            {{ form_start(form) }}
-                <div class="bg-white rounded mt-3">
-                    {{ form_row(form.name) }}
-                </div>
-
-                {# <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Create Item</button> #}
-            {{ form_end(form) }}     
-        </div>
-
-        <div class="d-flex justify-content-center">
-            <div>
-                {% for row in attributes %}
-                    {% for attributes in row %}
-                        <div class='mb-4'>
-                            <h4>{{ attributes|capitalize }}</h4>
-                        </div>
-                    {% endfor %}
-                {% endfor %}
+            <div class="bg-white rounded">
+                <!-- Рендеринг полей основной формы -->
+                {{ form_widget(form) }}
             </div>
-            {{ dump(forms) }}
-            <div>
-                {% for form in forms %}
-                    <div class="row d-flex justify-content-center align-items-center ms-5" style="width: 500px">
-                        {{ form_errors(form) }}
-                        
-                        {{ form_start(form) }}
-                            <div class="bg-white rounded">
-                                {{ form_row(form.value) }}
-                            </div>
-                            <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Save</button>
-                        {{ form_end(form) }}
+            
+            <!-- Кнопка для отправки основной формы -->
+            <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Save</button>
+        {{ form_end(form) }}
+    </div>
+
+    <div>
+        <!-- Форма для каждого атрибута -->
+        {% for type, form in forms %}
+            <div class="row d-flex justify-content-center align-items-center ms-5" style="width: 500px">
+                {{ form_errors(form) }}
+                
+                {{ form_start(form) }}
+                    <div class="bg-white rounded">
+                        <!-- Рендеринг полей формы для атрибутов -->
+                        {{ form_widget(form) }}
                     </div>
-                {% endfor %}
+                    
+                    <!-- Кнопка для отправки формы атрибутов (если требуется) -->
+                    <button type="submit" class="btn btn-success btn-block btn-lg border-0 gradient-custom-1 mx-auto text-body w-100">Save</button>
+                {{ form_end(form) }}
             </div>
-        </div>
+        {% endfor %}
+    </div>
 
+    <div>
+        <!-- Названия атрибутов -->
+        {% for attribute in attributes %}
+            <div class='mb-4'>
+                <h4>{{ attribute|capitalize }}</h4>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}
