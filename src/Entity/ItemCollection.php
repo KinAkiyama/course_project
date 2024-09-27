@@ -1,123 +1,135 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
+use App\Entity\ItemCollection\CollectionCategory;
+use App\Entity\ItemCollection\CustomItemAttribute;
 use App\Repository\ItemCollectionRepository;
-use App\Validator\CollectionCustomAttribute;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ItemCollectionRepository::class)]
 class ItemCollection
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: UuidType::NAME)]
+    private Uuid $id;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+    #[ORM\Column(type: Types::STRING, length: 180)]
     private ?string $name = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotBlank]
-    private ?CollectionCategory $category = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 180)]
     private ?string $description = null;
 
-    /**
-     * @var Collection<int, CustomItemAttribute>
-     */
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    private ?string $imageUrl = null;
 
-    #[ORM\OneToMany(targetEntity: CustomItemAttribute::class, mappedBy: 'itemCollection', orphanRemoval: true, cascade: ['persist'] )]
-    #[Assert\Valid()]
-    #[CollectionCustomAttribute()]
-    private Collection $customItemAttribute;
+    #[ORM\Column(type: Types::STRING)]
+    private ?string $userId = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userCollections')]
+    #[ORM\ManyToOne(targetEntity: CollectionCategory::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $author = null;
+    private ?CollectionCategory $category = null;
 
-    /**
-     * @var Collection<int, CollectionItem>
-     */
-    #[ORM\OneToMany(targetEntity: CollectionItem::class, mappedBy: 'itemCollection', orphanRemoval: true)]
-    private Collection $collectionItems;
+    #[ORM\OneToMany(targetEntity: CustomItemAttribute::class, mappedBy: 'itemCollection', cascade: ['persist'], orphanRemoval: true)]
+    private Collection $customItemAttributes;
+
+    #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'itemCollection')]
+    private Collection $item;
 
     public function __construct()
     {
-        $this->customItemAttribute = new ArrayCollection();
-        $this->collectionItems = new ArrayCollection();
+        $this->id = Uuid::v7();
+        $this->customItemAttributes = new ArrayCollection();
+        $this->item = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName(?string $name): static
+    public function setName(string $name): self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getCategory(): ?CollectionCategory
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?CollectionCategory $category): static
-    {
-        $this->category = $category;
-
-        return $this;
-    }
-
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
 
-    public function setDescription(?string $description): static
+    public function setDescription(string $description): self
     {
         $this->description = $description;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, CustomItemAttribute>
-     */
-    public function getCustomItemAttribute(): Collection
+    public function getImageUrl(): ?string
     {
-        return $this->customItemAttribute;
+        return $this->imageUrl;
     }
 
-    public function addCustomItemAttribute(CustomItemAttribute $customItemAttribute): static
+    public function setImageUrl(?string $imageUrl): self
     {
-        if (!$this->customItemAttribute->contains($customItemAttribute)) {
-            $this->customItemAttribute->add($customItemAttribute);
+        $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    public function getUserId(): string
+    {
+        return $this->userId;
+    }
+     public function setUserId(string $userId): self
+     {
+         $this->userId = $userId;
+         return $this;
+     }
+
+    public function getCategory(): ?CollectionCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?CollectionCategory $category): self
+    {
+        $this->category = $category;
+        return $this;
+    }
+
+    public function getCustomItemAttributes(): Collection
+    {
+        return $this->customItemAttributes;
+    }
+
+    public function addCustomItemAttribute(CustomItemAttribute $customItemAttribute): self
+    {
+        if (!$this->customItemAttributes->contains($customItemAttribute)) {
+            $this->customItemAttributes->add($customItemAttribute);
             $customItemAttribute->setItemCollection($this);
         }
 
         return $this;
     }
 
-    public function removeCustomItemAttribute(CustomItemAttribute $customItemAttribute): static
+    public function removeCustomItemAttribute(CustomItemAttribute $customItemAttribute): self
     {
-        if ($this->customItemAttribute->removeElement($customItemAttribute)) {
-            // set the owning side to null (unless already changed)
+        if ($this->customItemAttributes->removeElement($customItemAttribute)) {
             if ($customItemAttribute->getItemCollection() === $this) {
                 $customItemAttribute->setItemCollection(null);
             }
@@ -126,46 +138,9 @@ class ItemCollection
         return $this;
     }
 
-    public function getAuthor(): ?User
+    public function getItem(): Collection
     {
-        return $this->author;
-    }
-
-    public function setAuthor(?User $author): static
-    {
-        $this->author = $author;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, CollectionItem>
-     */
-    public function getCollectionItems(): Collection
-    {
-        return $this->collectionItems;
-    }
-
-    public function addCollectionItem(CollectionItem $collectionItem): static
-    {
-        if (!$this->collectionItems->contains($collectionItem)) {
-            $this->collectionItems->add($collectionItem);
-            $collectionItem->setItemCollection($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCollectionItem(CollectionItem $collectionItem): static
-    {
-        if ($this->collectionItems->removeElement($collectionItem)) {
-            // set the owning side to null (unless already changed)
-            if ($collectionItem->getItemCollection() === $this) {
-                $collectionItem->setItemCollection(null);
-            }
-        }
-
-        return $this;
+        return $this->item;
     }
 
 }

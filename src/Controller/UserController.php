@@ -1,34 +1,83 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\ItemCollection;
 use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Form\LoginType;
+use App\Form\RegistrationType;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class UserController extends AbstractController
 {
-    public function __construct(
-        private readonly UserRepository $userRepository,
-        private EntityManagerInterface $em,
-    ) {}
+    #[Route('/signup', name: 'signup')]
+    public function registration(
+        EntityManagerInterface $entityManager,
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
+        Security $security,
+    ): Response {
+        $user = new User();
+        $form = $this->createForm(RegistrationType::class, $user);
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+            $username = $form->get('username')->getData();
+            $password = $form->get('password')->getData();
+    
+            $findUsername = $entityManager
+                ->getRepository(User::class)
+                ->findOneBy(['username' => $username]);
+    
+            if ($findUsername !== null) {
+                $form->get('username')->addError(new FormError('Username already exists'));
+            } else {
+                $user = new User();
+                $user->setUsername($username);
+                $user->setPassword($passwordHasher->hashPassword($user, $password));
+    
+                $entityManager->persist($user);
+                $entityManager->flush();
+    
+                $security->login($user);
+    
+                return $this->redirectToRoute('main');
+            }
+        }
+    
+        return $this->render('signup.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
 
-    #[Route(path: '/' ,name: 'app_user', methods: ['GET'])    ]
-    public function index(EntityManagerInterface $entityManager): Response
+    #[Route('/signin', name: 'signin')]
+    public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        $collections = $this->em->getRepository(ItemCollection::class)->findAll();
+        $error = $authenticationUtils->getLastAuthenticationError();
+        $lastUsername = $authenticationUtils->getLastUsername();
 
-        //sort for collections
+        $form = $this->createForm(LoginType::class, null, [
+            'csrf_field_name' => 'token',
+            'csrf_token_id' => 'signin',
+            'lastUsername' => $lastUsername,
+        ]);
 
-        $topFiveLargestCollections = array_slice($collections, 0, 5);
+        if ($form->isSubmitted() && $form->isValid()){
+            return $this->redirectToRoute('main');
+        }
 
-        return $this->render('user/index.html.twig', [
-           'users' => $this->userRepository->findAll(),
-           'collections' => $topFiveLargestCollections,
+        return $this->render('signin.html.twig', [
+            'form' => $form->createView(),
+            'error' => $error,
         ]);
     }
 }

@@ -8,7 +8,7 @@ enum CustomAttributeType: string {
 
     case Integer = 'INT';
     case String = 'STRING';
-    case Boolean = 'BOOL';
+    case Boolean = 'BOOLEAN';
     case Date = 'DATE';
     case Text = 'TEXT';
 }

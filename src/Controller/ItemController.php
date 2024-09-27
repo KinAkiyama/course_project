@@ -1,108 +1,143 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\Entity\CollectionItem;
+use App\Entity\Item;
 use App\Entity\ItemCollection;
-use App\Entity\ItemIntegerTypeAttribute;
-use App\Entity\ItemStringTypeAttribute;
-use App\Entity\CustomItemAttribute;
-use App\Entity\ItemBooleanTypeAttribute;
-use App\Entity\ItemDateTypeAttribute;
-use App\Entity\ItemTextTypeAttribute;
-use App\Form\ItemCreateType;
-use App\Form\TestType;
-use App\Enum\CustomAttributeType;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
+use App\Form\ItemType;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
-class ItemController extends AbstractController
+class ItemController extends AbstractController 
 {
-    public function __construct(private EntityManagerInterface $entityManager)
-    {
-
-    }
-
-    #[Route('collection/{id}/item', name: 'app_item')]
-    public function index(): Response
-    {
-        return $this->render('item/index.html.twig', [
-            'controller_name' => 'ItemController',
-        ]);
-    }
-
-    #[Route('/collection/{id}/item/create', name: 'app_item_create', methods: [Request::METHOD_GET, Request::METHOD_POST])]
-    public function create(Request $request, string $id, EntityManagerInterface $entityManager): Response
-    {
-        $collection = $entityManager->getRepository(ItemCollection::class)->findOneBy(['id' => $id]);
-        $arrOfAttr = $entityManager->getRepository(CustomItemAttribute::class)->findBy(['itemCollection' => $id]);
-    
-        $attrTypesArray = [];
-        $arrOfTypes = [];
-        $attributesName = [];
-    
-        foreach ($arrOfAttr as $attribute) {
-            $typeEnum = $attribute->getType();
-            $typeName = CustomAttributeType::name($typeEnum);
-            $attrTypesArray[] = $typeName;
-        }
-    
-        $attributes = $collection->getCustomItemAttribute()->getValues();
-    
-        foreach ($attributes as $attribute) {
-            $attributesName[] = $attribute->getName();
-        }
-    
-        $item = new CollectionItem();
-        $types = [
-            'Integer' => new ItemIntegerTypeAttribute(),
-            'String' => new ItemStringTypeAttribute(),
-            'Boolean' => new ItemBooleanTypeAttribute(),
-            'Date' => new ItemDateTypeAttribute(),
-            'Text' => new ItemTextTypeAttribute(),
-        ];
-    
-        foreach ($attrTypesArray as $key) {
-            if (array_key_exists($key, $types)) {
-                $arrOfTypes[$key] = $types[$key];
+    #[Route('/collection/{id}/item', name: 'view_items')]
+    public function view(
+        Request $request,
+        string $id,
+        EntityManagerInterface $entityManager
+        ): Response
+        {
+            $sort = $request->query->get('sort');
+            if ($sort === null) {
+                $sort = 'DESC';
             }
-        }
-    
-        $form = $this->createForm(ItemCreateType::class, $item);
-        $form->handleRequest($request);
-    
-        $forms = [];
-    
-        foreach ($arrOfTypes as $type => $attribute) {
-            $testForm = $this->createForm(TestType::class, $attribute, [
-                'attribute_type' => $type,
+
+            $collection = $entityManager->getRepository(ItemCollection::class)->findOneBy(['id' => $id]);
+            $nameCollection = $collection->getName();
+            $idCollection = $collection->getId();
+            $items = $entityManager->getRepository(Item::class)->findBy(['itemCollection' => $idCollection],
+                ['id' => $sort]);
+
+            $attributes = $collection->getCustomItemAttributes()->getValues();
+            $attributesName = [];
+            foreach ($attributes as $attribute) {
+                if ($attribute->getType()->name === 'String' || $attribute->getType()->name === 'Date') {
+                    $attributesName[] = [$attribute->getName()];
+                }
+            }
+
+            $valueAttributes = [];
+            foreach($items as $item) {
+                $value = $item->getValueAttributes()->getValues();
+                foreach ($value as $values) {
+                    if ($values->getType()->name === 'String' || $values->getType()->name === 'Date') {
+                        $valueAttributes [] = [$values -> getValue()];
+                    }
+                }
+            }
+
+            return $this->render('item/view.html.twig', [
+                'name_collection' => $nameCollection,
+                'id_collection' => $idCollection,
+                'items' => $items,
+                'attributes' => $attributesName,
+                'value_attributes' => $valueAttributes,
             ]);
-            $testForm->handleRequest($request);
-            
-            if ($testForm->isSubmitted() && $testForm->isValid()) {
-                $entityManager->flush();
-            }
-        
-            $forms[$type] = $testForm->createView();
         }
-    
+
+    #[Route('item/create', name: 'item_create')]
+    public function create(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        try {
+            $id = $request->get('id');
+        } catch (\Throwable) {
+            throw $this->createNotFoundException();
+        }
+
+        $collection = $entityManager->getRepository(ItemCollection::class)->find($id);
+        if ($collection === null) {
+            throw $this->createNotFoundException();
+        }
+
+        $form = $this->createForm(ItemType::class, options: [
+            'collection' => $collection,
+        ]);
+
+        $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
+            $item = $form->getData();
+            $item->setItemCollection($collection);
+
+            $currentUser = $this->getUser()->getUserIdentifier();
+            $item->setUserId($currentUser);
+
             $entityManager->persist($item);
             $entityManager->flush();
-            $this->addFlash('success', 'Item created!');
+
+            return $this->redirectToRoute('view_items', ['id' => $id]);
         }
-    
-        return $this->render('item/form.html.twig', [
+
+        return $this->render('item/create.html.twig', [
             'form' => $form->createView(),
-            'forms' => $forms,
-            'item' => $item,
-            'atr' => $arrOfTypes,
-            'attributes' => $attributesName,
+            'title' => 'Create Item',
+            'heading' => 'Create Item',
+            'idCollection' => $id,
         ]);
     }
-    
+
+    #[Route('item/{id}/edit', name: 'item_edit')]
+    public function edit(Request $request, EntityManagerInterface $entityManager, Item $item): Response
+    {
+        $collection = $item->getItemCollection();
+
+        $form = $this->createForm(ItemType::class, $item, [
+            'collection' => $collection,
+        ]);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $item = $form->getData();
+
+            $currentUser = $this->getUser()->getUserIdentifier();
+            $item ->setUserId($currentUser);
+
+            $entityManager->persist($item);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('view_items', ['id' => $collection->getId()]);
+        }
+
+        return $this->render('Items/create.html.twig', [
+            'form' => $form->createView(),
+            'title' => 'Update Item',
+            'heading' => 'Update Item',
+            'idCollection' => $collection->getId(),
+        ]);
+    }
+
+    #[Route('item/{id}/delete', name: 'item_delete')]
+    public function delete(EntityManagerInterface $entityManager, Item $item): Response
+    {
+        $itemCollection = $entityManager->getRepository(Item::class)->findOneBy(['id' => $item->getId()]);
+        $entityManager->remove($itemCollection);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('view_items', ['id' => $itemCollection->getItemCollection()->getId()]);
+    }
 }
